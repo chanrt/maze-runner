@@ -6,12 +6,14 @@ class Constants:
         self.fps = 60
         self.dt = 1 / self.fps
 
-        self.fov = np.deg2rad(90)
         self.increment = 0.01
-        self.height_multiplier = 300
+        self.anti_aliasing = 3
+
+        self.fov = np.deg2rad(90)
+        self.height_multiplier = 400
 
         self.move_speed = 1
-        self.rotate_speed = np.deg2rad(30)
+        self.rotate_speed = np.deg2rad(5)
 
     def set_dt(self, dt):
         self.dt = dt
@@ -20,6 +22,6 @@ class Constants:
         self.screen = screen
         self.SCREEN_WIDTH, self.SCREEN_HEIGHT = self.screen.get_size()
 
-        self.dtheta = self.fov / self.SCREEN_WIDTH
+        self.dtheta = (self.fov / self.SCREEN_WIDTH) * self.anti_aliasing
 
 consts = Constants()
