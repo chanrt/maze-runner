@@ -1,11 +1,12 @@
 from constants import consts as c
+from load_data import get_resource_path
 from maze_generator import *
 from player import Player
 
+from math import atan2
 from numba import njit
 import numpy as np
 import pygame as pg
-from time import time
 
 @njit(fastmath=True, nogil=True)
 def ray_cast(maze, distances, wall_types, player_params, render_params):
@@ -51,6 +52,9 @@ def game_loop(screen):
     pg.mouse.set_pos((c.SCREEN_WIDTH / 2, c.SCREEN_HEIGHT / 2))
     mouse_x = c.SCREEN_WIDTH / 2
 
+    compass_x = c.SCREEN_WIDTH - 2 * c.compass_radius
+    compass_y = 2 * c.compass_radius
+
     while 1:
         clock.tick(c.fps)
 
@@ -65,9 +69,10 @@ def game_loop(screen):
                     quit()
             if event.type == pg.MOUSEMOTION:
                 x, y = pg.mouse.get_pos()
-                dx = x - mouse_x
+                dtheta = x - mouse_x
 
-                player.look(dx)
+                player.look(dtheta)
+
                 if x > 3 * c.SCREEN_WIDTH / 4:
                     pg.mouse.set_pos((c.SCREEN_WIDTH / 2, y))
                     mouse_x = c.SCREEN_WIDTH / 2
@@ -78,6 +83,9 @@ def game_loop(screen):
                     mouse_x = x
 
         player.update(keys_pressed, maze)
+        orientation = -atan2(2 * n - player.y, 2 * n - player.x) + player.angle + np.pi / 2
+        compass_dx = 0.8 * c.compass_radius * np.cos(orientation)
+        compass_dy = -0.8 * c.compass_radius * np.sin(orientation)
 
         distances = np.zeros(c.SCREEN_WIDTH // c.anti_aliasing)
         wall_types = np.zeros(c.SCREEN_WIDTH // c.anti_aliasing)
@@ -95,14 +103,15 @@ def game_loop(screen):
                 wall_color = start_wall_color
             elif wall_types[i] == 3:
                 wall_color = end_wall_color
-            # else:
-            #     wall_color = pg.Color("black")
             
             wall_rect = pg.Rect(i * c.anti_aliasing, c.SCREEN_HEIGHT / 2 - height / 2, c.anti_aliasing, height)
             pg.draw.rect(screen, wall_color, wall_rect)
 
         fps_display = simple_font.render(f'FPS: {int(clock.get_fps())}', True, pg.Color('white'))
         screen.blit(fps_display, (0, 0))
+
+        pg.draw.circle(screen, pg.Color('black'),(compass_x, compass_y), c.compass_radius, c.compass_thickness)
+        pg.draw.line(screen, pg.Color('black'), (compass_x, compass_y), (compass_x + compass_dx, compass_y + compass_dy), 2 * c.compass_thickness)
 
         pg.display.flip()
 

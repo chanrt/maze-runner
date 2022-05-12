@@ -12,7 +12,7 @@ class Constants:
         self.fov = np.deg2rad(90)
         self.height_multiplier = 400
 
-        self.move_speed = 1
+        self.move_speed = 2
         self.rotate_speed = np.deg2rad(5)
 
     def set_dt(self, dt):
@@ -23,5 +23,7 @@ class Constants:
         self.SCREEN_WIDTH, self.SCREEN_HEIGHT = self.screen.get_size()
 
         self.dtheta = (self.fov / self.SCREEN_WIDTH) * self.anti_aliasing
+        self.compass_radius = self.SCREEN_HEIGHT // 15
+        self.compass_thickness = 2
 
 consts = Constants()
